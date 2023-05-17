@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using dotnet_rpg.Models;
+using dotnet_rpg.Services.CharacterService;
 using Microsoft.AspNetCore.Mvc;
 
 namespace dotnet_rpg.Controllers
@@ -11,23 +12,31 @@ namespace dotnet_rpg.Controllers
     [Route("api/[controller]")]
     public class CharacterController : ControllerBase
     {
-     private static List<Character> characters = new List<Character>
+        private readonly ICharacterService _characterService;
+
+        public CharacterController(ICharacterService characterService)
      {
-        new Character(),
-        new Character {Id = 1, Name = "FUCK"}
-     };   
+             _characterService = characterService;
+        }
 
 
     [HttpGet("GetAll")]
-     public ActionResult<List<Character>> Get() 
+     public async Task<ActionResult<ServiceResponse<List<Character>>>> Get() 
      {
-        return Ok(characters);
+        return Ok(await _characterService.GetAllCharacters());
      }
 
     [HttpGet("{id}")]
-     public ActionResult<Character> GetSingle(int id) 
+     public async Task<ActionResult<ServiceResponse<Character>>> GetSingle(int id) 
      {
-        return Ok(characters.FirstOrDefault( c => c.Id == id));
+        return Ok(await _characterService.GetCharacterById(id));
+     }
+
+    [HttpPost]
+     public async Task<ActionResult<ServiceResponse<List<Character>>>> AddCharacter(Character newCharacter)
+     {
+    
+        return Ok(await _characterService.AddCharacter(newCharacter));
      }
     }
 
